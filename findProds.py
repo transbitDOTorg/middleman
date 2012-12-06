@@ -73,7 +73,6 @@ class ParserMain:
         attrs["image"]  = str(picTag["image-src"])
     
         attrs = dict(attrs.items() + self.parseIcons(sellersSoup).items())
-        print attrs
         return attrs
     
     # Parse soup, extract relevant item attributes from icon span
@@ -122,24 +121,45 @@ class ParserMain:
         for i in range(0, min(len(result.parsedXML), 10)):
             pass
         print link
+        
+    def renderPageAsTable(self, page):
+        for item in page:
+            self.renderItemAsTable(item)
+            raw_input("Continue (y/n): ")
+    
+    def renderItemAsTable(self, item):
+        print item
+
 
     # Main function, execution entry-point
     def main(self):
         # Accept URL input for category from user
-        base_url        = raw_input("Enter a category URL on Alibaba (from http://alibaba.com/): ").strip()
-        use_browser     = "b" in raw_input("Select display mode  [P(anel) / b(rowser)]: ").lower();
-        require_price   = not "n" in raw_input("Require FOB price to display item? [Y / n]: ").lower();
-        render_colors   = not "n" in raw_input("Render colors? [Y / n]: ").lower();
-    
-        if not render_colors:
-            bcolors.disable(bcolors)
-    
+        self.base_url       = raw_input("Enter a category URL on Alibaba (from http://alibaba.com/): ").strip()
+        self.use_browser    = "b" in raw_input("Select display mode  [P(anel) / b(rowser)]: ").lower();
+        self.require_price  = not "n" in raw_input("Require FOB price to display item? [Y / n]: ").lower();
+        self.render_colors  = not "n" in raw_input("Render colors? [Y / n]: ").lower();
+        self.bcolors        = bcolors()
+                
+        if not self.render_colors:
+            self.bcolors.disable()
+        
+        while True:
+            user_price_threshold = raw_input("Hide items above price [$200]: ")
+            try:
+                if len(user_price_threshold) == 0:
+                    self.price_threshold = 200
+                else:
+                    self.price_threshold = int(user_price_threshold)
+                break
+            except:
+                print self.bcolors.FAIL + "Error: Invalid integer parameter." + self.bcolors.ENDC
+
         # Load URL if valid, otherwise throw an error and quit the program
         try:
-            pageToParse = urllib.urlopen(base_url).read()
-            print "Base URL "+bcolors.OKGREEN+ "OK."+bcolors.ENDC
+            pageToParse = urllib.urlopen(self.base_url).read()
+            print "Base URL "+self.bcolors.OKGREEN + "OK." + self.bcolors.ENDC
         except:
-            print "Base URL "+bcolors.FAIL+ "ERROR."+bcolors.ENDC
+            print "Base URL "+self.bcolors.FAIL + "ERROR." + self.bcolors.ENDC
             exit(0)
         
         soup = BeautifulSoup(pageToParse)
@@ -151,9 +171,8 @@ class ParserMain:
         numPages = int(numPages.contents[0].split("/")[1])
 
         for i in range(2, numPages+1):
-            #break # @todo remove me after testing
-            soup = BeautifulSoup(urllib.urlopen(base_url + "_" + str(i)).read())
-            self.aliBabaPageParse(soup)
+            soup = BeautifulSoup(urllib.urlopen(self.base_url + "_" + str(i)).read())
+            self.renderPageAsTable(self.aliBabaPageParse(soup))
 
 # Program entry-point
 mainParser = ParserMain()
