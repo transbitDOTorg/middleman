@@ -1,20 +1,15 @@
 import sys, time
 from PyQt4 import QtGui, QtCore, QtWebKit, QtScript
 
-class browserWindow(QtWebKit.QWebView):
-    def __init__(self, parent=None, child=None):
-        super(browserWindow, self).__init__(parent)
-        self.child = child
-
 class selectionWindow(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
 
-        #The setGeometry method is used to position the control.
-        #Order: X, Y position - Width, Height of control.
-        self.setGeometry(0, 0, 470, 80)
+        # The setGeometry method is used to position the control.
+        # Order: X, Y position - Width, Height of control.
+        self.setGeometry(0, 0, 680, 80)
 
-        self.setToolTip('Please select whether you would like to save or <br>discard the item being shown in the browser.')
+        self.setToolTip('Please select whether you would like to save or <br>discard the item being shown below.')
         QtGui.QToolTip.setFont(QtGui.QFont('Helvetica', 12))
 
         btnWant = QtGui.QPushButton('Save this item.', self)
@@ -29,16 +24,26 @@ class selectionWindow(QtGui.QWidget):
         btnExit = QtGui.QPushButton('Exit', self)
         btnExit.setGeometry(400, 12, 60, 60)
 
+        btnExit = QtGui.QPushButton('Amazon', self)
+        btnExit.setFlat(True)
+        btnExit.setGeometry(470, 12, 60, 60)
+
+        btnExit = QtGui.QPushButton('BestBuy', self)
+        btnExit.setGeometry(540, 12, 60, 60)
+
+        btnExit = QtGui.QPushButton('NewEgg', self)
+        btnExit.setGeometry(610, 12, 60, 60)
+
         self.connect(btnWant, QtCore.SIGNAL('clicked()'), QtGui.qApp, QtCore.SLOT('quit()'))
 
 app = QtGui.QApplication(sys.argv)
 scene = QtGui.QGraphicsScene()
-web = browserWindow()
+web = QtWebKit.QWebView()
 mainForm = selectionWindow(web)
 mainForm.setAutoFillBackground(True)
-#mainPalette = mainForm.palette()
-#mainPalette.setColor(mainForm.backgroundRole(), QtCore.Qt.black)
-#mainForm.setPalette(mainPalette)
+mainPalette = mainForm.palette()
+mainPalette.setColor(mainForm.backgroundRole(), QtCore.Qt.white)
+mainForm.setPalette(mainPalette)
 web.load(QtCore.QUrl("http://news.google.com/"))
 scene.addWidget(web)
 scene.addWidget(mainForm)
