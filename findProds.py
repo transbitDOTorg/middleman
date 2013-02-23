@@ -12,9 +12,8 @@
 # Licensed under GPLv3
 
 # Import all required modules
-from amazon import Search
 from BeautifulSoup import BeautifulSoup
-import re, urllib, math
+import re, urllib, math, gui
 
 # Constant storage class that allows for
 # colored terminal output via ANSI codes
@@ -122,7 +121,7 @@ class ParserMain:
             pass
         print link
         
-    def renderPageAsTable(self, page):
+    def renderPage(self, page):
         for item in page:
             self.renderItemAsTable(item)
             raw_input("Continue (y/n): ")
@@ -167,12 +166,14 @@ class ParserMain:
 
         # Extract the number of pages in the search using BeautifulSoup
         # (necessary to iterate over all pages and extract all items)
-        numPages = soup.find('span', attrs={"class":"page-num TreFont"})
-        numPages = int(numPages.contents[0].split("/")[1])
-
+        numPages = soup.find('span', attrs={"class":"page-num"})
+        numPages = int(numPages.contents[0].split("of")[1].split(":")[0].strip())
+	self.gui = gui.mainApp()
+	self.gui.display()
+	print "DUN GOOFT"
         for i in range(2, numPages+1):
             soup = BeautifulSoup(urllib.urlopen(self.base_url + "_" + str(i)).read())
-            self.renderPageAsTable(self.aliBabaPageParse(soup))
+            self.renderPage(self.aliBabaPageParse(soup))
 
 # Program entry-point
 mainParser = ParserMain()
