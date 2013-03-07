@@ -170,7 +170,6 @@ class ParserMain:
         numPages = int(numPages.contents[0].split("of")[1].split(":")[0].strip())
 	self.gui = gui.mainApp()
 	self.gui.display()
-	print "DUN GOOFT"
         for i in range(2, numPages+1):
             soup = BeautifulSoup(urllib.urlopen(self.base_url + "_" + str(i)).read())
             self.renderPage(self.aliBabaPageParse(soup))

@@ -54,6 +54,5 @@ class mainApp:
 		self.view.setWindowTitle("MiddleMan - Main View")
 		self.view.show()
 		self.app.exec_()
-	def render(self, price):
-		# Update 	
-		pass
+	def render(self, price, product):
+		self.web.load(QtCore.QUrl("http://camelcamelcamel.com/search?sq="+product))
