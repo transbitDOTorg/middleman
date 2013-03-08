@@ -1,9 +1,14 @@
-import sys, time
-from PyQt4 import QtGui, QtCore, QtWebKit, QtScript
+import sys
+from PyQt4 import QtGui, QtCore, QtWebKit
+from PyQt4.QtCore import Qt
+
+
 
 class selectionWindow(QtGui.QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, loadNextItemHandle=None):
         QtGui.QWidget.__init__(self, parent)
+
+        self.loadNextItemHandle = loadNextItemHandle
 
         # The setGeometry method is used to position the control.
         # Order: X, Y position - Width, Height of control.
@@ -17,42 +22,48 @@ class selectionWindow(QtGui.QWidget):
 
         btnHate = QtGui.QPushButton('Discard this item.', self)
         btnHate.setGeometry(170, 12, 150, 60)
+        btnHate.clicked.connect(self.loadNextItemHandle)
 
         btnHelp = QtGui.QPushButton('Help!', self)
         btnHelp.setGeometry(330, 12, 60, 60)
 
         btnExit = QtGui.QPushButton('Exit', self)
         btnExit.setGeometry(400, 12, 60, 60)
+        btnExit.clicked.connect(quit)
 
-        #btnExit = QtGui.QPushButton('Amazon', self)
-        #btnExit.setFlat(True)
-        #btnExit.setGeometry(470, 12, 60, 60)
+    def want(self, loadNextItemHandle):
+        self.loadNextItemHandle
 
-        #btnExit = QtGui.QPushButton('BestBuy', self)
-        #btnExit.setGeometry(540, 12, 60, 60)
+    def loadNextItem(self):
+        print self.app.loadNextItem();
 
-        #btnExit = QtGui.QPushButton('NewEgg', self)
-        #btnExit.setGeometry(610, 12, 60, 60)
+class mainApp():
+    def __init__(self, parser):
+        self.parser = parser
+        self.app = QtGui.QApplication(sys.argv)
+        self.scene = QtGui.QGraphicsScene()
+        self.web = QtWebKit.QWebView()
+        # Construct window and view @todo rewrite
+        self.mainForm = selectionWindow(self.web, self.loadNextItem)
+        self.mainForm.setAutoFillBackground(True)
+        self.mainPalette = self.mainForm.palette()
+        self.mainPalette.setColor(self.mainForm.backgroundRole(), QtCore.Qt.white)
+        self.mainForm.setPalette(self.mainPalette)
 
-        self.connect(btnWant, QtCore.SIGNAL('clicked()'), QtGui.qApp, QtCore.SLOT('quit()'))
+    def display(self):
+        #self.web.load(QtCore.QUrl("http://camelcamelcamel.com/"))
+        self.scene.addWidget(self.web)
+        self.scene.addWidget(self.mainForm)
+        self.view = QtGui.QGraphicsView(self.scene)
+        self.view.setWindowTitle("Middleman")
+        self.view.show()
+        self.app.exec_()
 
-class mainApp:
-	def __init__(self):
-		self.app = QtGui.QApplication(sys.argv)
-		self.scene = QtGui.QGraphicsScene()
-		self.web = QtWebKit.QWebView()
-		self.mainForm = selectionWindow(self.web)
-		self.mainForm.setAutoFillBackground(True)
-		self.mainPalette = self.mainForm.palette()
-		self.mainPalette.setColor(self.mainForm.backgroundRole(), QtCore.Qt.white)
-		self.mainForm.setPalette(self.mainPalette)
-	def display(self):
-		self.web.load(QtCore.QUrl("http://camelcamelcamel.com/"))
-		self.scene.addWidget(self.web)
-		self.scene.addWidget(self.mainForm)
-		self.view = QtGui.QGraphicsView(self.scene)
-		self.view.setWindowTitle("MiddleMan - Main View")
-		self.view.show()
-		self.app.exec_()
-	def render(self, price, product):
-		self.web.load(QtCore.QUrl("http://camelcamelcamel.com/search?sq="+product))
+    def render(self, price, product):
+        self.web.load(QtCore.QUrl("http://camelcamelcamel.com/search?sq="+product))
+
+    def loadNextItem(self):
+        QtGui.QApplication.setOverrideCursor(Qt.WaitCursor)
+        print self.parser.serveNextItem()
+        QtGui.QApplication.restoreOverrideCursor()
+

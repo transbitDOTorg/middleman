@@ -4,8 +4,8 @@
 # Outputs a CSV of manually approved AliBaba items
 # deemed capable for arbitrage by a human operator.
 #
-# @author   Philip Daian
-# @email    phil@linux.com
+# @author   Transbit
+# @email    info@transbit.org
 # @version  0.1
 # @reqs     Python v2.7
 #
@@ -37,6 +37,10 @@ class ParserMain:
     # Extract the item and supplier information
     # for all items in the page contained in soup
     def aliBabaPageParse(self, soup):
+        if (self.currPage >= self.numPages):
+            # Too many pages processed
+            return None;
+        soup = BeautifulSoup(urllib.urlopen(self.base_url + "_" + str(self.currPage)).read())
         items       = []
         allProducts = soup.findAll("div", { "class" : "attr" })
         allSellers  = soup.findAll("div", { "class" : "supplier" })
@@ -110,35 +114,26 @@ class ParserMain:
             attrValue = ' '.join(str(allItems[i].contents[tagoffset+1]).split())
             attrs[attrName.strip()] = attrValue.strip()
         return attrs
-    
-    # Extract item and price information for first 
-    # ten Amazon search results, return relevant
-    # info as an array of dictionaries
-    def amazonSearch(self, itemName):
-        result = Search(title="The Idea of America",author="Gordon Wood",style="xml")
-        link = result.parsedXML[0]
-        for i in range(0, min(len(result.parsedXML), 10)):
-            pass
-        print link
-        
-    def renderPage(self, page):
-        for item in page:
-            self.renderItemAsTable(item)
-            raw_input("Continue (y/n): ")
-    
-    def renderItemAsTable(self, item):
-        print item
 
+    # Serve items one at a time as dictionary
+    def serveNextItem(self):
+        if (len(self.cachedItems) == 0):
+            self.currPage+=1
+            soup = BeautifulSoup(urllib.urlopen(self.base_url + "_" + str(self.currPage)).read())
+            self.cachedItems = self.aliBabaPageParse(soup)
+        return self.cachedItems.pop(0)
 
     # Main function, execution entry-point
     def main(self):
+        self.numPages = 0
+        self.currPage = 1
+        self.cachedItems = []
         # Accept URL input for category from user
         self.base_url       = raw_input("Enter a category URL on Alibaba (from http://alibaba.com/): ").strip()
-        self.use_browser    = "b" in raw_input("Select display mode  [P(anel) / b(rowser)]: ").lower();
-        self.require_price  = not "n" in raw_input("Require FOB price to display item? [Y / n]: ").lower();
-        self.render_colors  = not "n" in raw_input("Render colors? [Y / n]: ").lower();
+        self.use_browser    = "b" in raw_input("Select display mode  [P(anel) / b(rowser)]: ").lower()
+        self.require_price  = not "n" in raw_input("Require FOB price to display item? [Y / n]: ").lower()
+        self.render_colors  = not "n" in raw_input("Render colors? [Y / n]: ").lower()
         self.bcolors        = bcolors()
-                
         if not self.render_colors:
             self.bcolors.disable()
         
@@ -162,17 +157,13 @@ class ParserMain:
             exit(0)
         
         soup = BeautifulSoup(pageToParse)
-        self.aliBabaPageParse(soup)
 
         # Extract the number of pages in the search using BeautifulSoup
         # (necessary to iterate over all pages and extract all items)
-        numPages = soup.find('span', attrs={"class":"page-num"})
-        numPages = int(numPages.contents[0].split("of")[1].split(":")[0].strip())
-	self.gui = gui.mainApp()
-	self.gui.display()
-        for i in range(2, numPages+1):
-            soup = BeautifulSoup(urllib.urlopen(self.base_url + "_" + str(i)).read())
-            self.renderPage(self.aliBabaPageParse(soup))
+        self.numPages = soup.find('span', attrs={"class":"page-num"})
+        self.numPages = int(self.numPages.contents[0].split("of")[1].split(":")[0].strip())
+        self.gui = gui.mainApp(self)
+        self.gui.display()
 
 # Program entry-point
 mainParser = ParserMain()
