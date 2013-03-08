@@ -130,9 +130,8 @@ class ParserMain:
         self.cachedItems = []
         # Accept URL input for category from user
         self.base_url       = raw_input("Enter a category URL on Alibaba (from http://alibaba.com/): ").strip()
-        self.use_browser    = "b" in raw_input("Select display mode  [P(anel) / b(rowser)]: ").lower()
-        self.require_price  = not "n" in raw_input("Require FOB price to display item? [Y / n]: ").lower()
-        self.render_colors  = not "n" in raw_input("Render colors? [Y / n]: ").lower()
+        self.require_price  = True
+        self.render_colors  = True
         self.bcolors        = bcolors()
         if not self.render_colors:
             self.bcolors.disable()
