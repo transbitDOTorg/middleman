@@ -12,7 +12,7 @@ class selectionWindow(QtGui.QWidget):
 
         # The setGeometry method is used to position the control.
         # Order: X, Y position - Width, Height of control.
-        self.setGeometry(0, 0, 680, 100)
+        self.setGeometry(0, 0, 800, 120)
 
         self.setToolTip('Please select whether you would like to save or discard the item being shown below.')
         QtGui.QToolTip.setFont(QtGui.QFont('Helvetica', 12))
@@ -32,8 +32,7 @@ class selectionWindow(QtGui.QWidget):
         btnExit.clicked.connect(quit)
 
         self.displayArea = QtGui.QLabel(self)
-        self.displayArea.setGeometry(470, 12, 60, 60)
-        self.displayArea.setText("test!<br><b>test</b>")
+        self.displayArea.setGeometry(470, 12, 200, 60)
 
     def want(self, loadNextItemHandle):
         self.loadNextItemHandle
@@ -47,6 +46,7 @@ class mainApp():
         self.app = QtGui.QApplication(sys.argv)
         self.scene = QtGui.QGraphicsScene()
         self.web = QtWebKit.QWebView()
+        self.web.resize(1000, 500)
         # Construct window and view @todo rewrite
         self.mainForm = selectionWindow(self.web, self.loadNextItem)
         self.mainForm.setAutoFillBackground(True)
@@ -64,12 +64,19 @@ class mainApp():
         self.app.exec_()
 
     def render(self, price, product):
-        self.mainForm.displayArea.setTest("Item: {0}<br>Price:<p style='color:{1};'>{2}</p>".format(str(product), "green", str(price)))
+        self.mainForm.displayArea.setText("Item: {0}<br>Price:<div style='color:{1}; display:inline;'>{2}</div>".format(str(product), "green", str(price)))
 
     def loadNextItem(self):
         QtGui.QApplication.setOverrideCursor(Qt.WaitCursor)
         item =  self.parser.serveNextItem()
+        print item
         self.web.load(QtCore.QUrl("http://camelcamelcamel.com/search?sq="+item["name"]))
-        self.render(item["name"], item["price"])
+        self.render(self.extractParamIfExists(item, "price"), item["name"])
         QtGui.QApplication.restoreOverrideCursor()
+
+    def extractParamIfExists(self, dict, key):
+        try:
+            return dict[key]
+        except:
+            return "N/A"
 

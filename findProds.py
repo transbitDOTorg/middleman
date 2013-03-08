@@ -150,6 +150,7 @@ class ParserMain:
         # (necessary to iterate over all pages and extract all items)
         self.numPages = soup.find('span', attrs={"class":"page-num"})
         self.numPages = int(self.numPages.contents[0].split("of")[1].split(":")[0].strip())
+        self.cachedItems = self.aliBabaPageParse(soup)
         self.gui = gui.mainApp(self)
         self.gui.display()
 
