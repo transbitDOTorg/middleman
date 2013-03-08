@@ -14,13 +14,13 @@ class selectionWindow(QtGui.QWidget):
         # Order: X, Y position - Width, Height of control.
         self.setGeometry(0, 0, 680, 100)
 
-        self.setToolTip('Please select whether you would like to save or <br>discard the item being shown below.')
+        self.setToolTip('Please select whether you would like to save or discard the item being shown below.')
         QtGui.QToolTip.setFont(QtGui.QFont('Helvetica', 12))
 
         btnWant = QtGui.QPushButton('Save this item.', self)
         btnWant.setGeometry(10, 12, 150, 60)
 
-        btnHate = QtGui.QPushButton('Discard this item.', self)
+        btnHate = QtGui.QPushButton('Load next item.', self)
         btnHate.setGeometry(170, 12, 150, 60)
         btnHate.clicked.connect(self.loadNextItemHandle)
 
@@ -30,6 +30,10 @@ class selectionWindow(QtGui.QWidget):
         btnExit = QtGui.QPushButton('Exit', self)
         btnExit.setGeometry(400, 12, 60, 60)
         btnExit.clicked.connect(quit)
+
+        self.displayArea = QtGui.QLabel(self)
+        self.displayArea.setGeometry(470, 12, 60, 60)
+        self.displayArea.setText("test!<br><b>test</b>")
 
     def want(self, loadNextItemHandle):
         self.loadNextItemHandle
@@ -51,7 +55,7 @@ class mainApp():
         self.mainForm.setPalette(self.mainPalette)
 
     def display(self):
-        #self.web.load(QtCore.QUrl("http://camelcamelcamel.com/"))
+        self.web.load(QtCore.QUrl("http://transbit.org/middlemansplash.html")) # @todo localize this
         self.scene.addWidget(self.web)
         self.scene.addWidget(self.mainForm)
         self.view = QtGui.QGraphicsView(self.scene)
@@ -60,10 +64,12 @@ class mainApp():
         self.app.exec_()
 
     def render(self, price, product):
-        self.web.load(QtCore.QUrl("http://camelcamelcamel.com/search?sq="+product))
+        self.mainForm.displayArea.setTest("Item: {0}<br>Price:<p style='color:{1};'>{2}</p>".format(str(product), "green", str(price)))
 
     def loadNextItem(self):
         QtGui.QApplication.setOverrideCursor(Qt.WaitCursor)
-        print self.parser.serveNextItem()
+        item =  self.parser.serveNextItem()
+        self.web.load(QtCore.QUrl("http://camelcamelcamel.com/search?sq="+item["name"]))
+        self.render(item["name"], item["price"])
         QtGui.QApplication.restoreOverrideCursor()
 

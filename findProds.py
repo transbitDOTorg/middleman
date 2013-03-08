@@ -135,17 +135,6 @@ class ParserMain:
         self.bcolors        = bcolors()
         if not self.render_colors:
             self.bcolors.disable()
-        
-        while True:
-            user_price_threshold = raw_input("Hide items above price [$200]: ")
-            try:
-                if len(user_price_threshold) == 0:
-                    self.price_threshold = 200
-                else:
-                    self.price_threshold = int(user_price_threshold)
-                break
-            except:
-                print self.bcolors.FAIL + "Error: Invalid integer parameter." + self.bcolors.ENDC
 
         # Load URL if valid, otherwise throw an error and quit the program
         try:
