@@ -139,9 +139,9 @@ class ParserMain:
         # Load URL if valid, otherwise throw an error and quit the program
         try:
             pageToParse = urllib.urlopen(self.base_url).read()
-            print "Base URL "+self.bcolors.OKGREEN + "OK." + self.bcolors.ENDC
+            print "Base URL "+ self.bcolors.OKGREEN + "OK." + self.bcolors.ENDC
         except:
-            print "Base URL "+self.bcolors.FAIL + "ERROR." + self.bcolors.ENDC
+            print "Base URL "+ self.bcolors.FAIL + "ERROR." + self.bcolors.ENDC
             exit(0)
         
         soup = BeautifulSoup(pageToParse)

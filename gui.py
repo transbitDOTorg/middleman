@@ -32,7 +32,10 @@ class selectionWindow(QtGui.QWidget):
         btnExit.clicked.connect(quit)
 
         self.displayArea = QtGui.QLabel(self)
-        self.displayArea.setGeometry(470, 12, 200, 60)
+        self.displayArea.setGeometry(470, 12, 230, 60)
+
+        self.imageArea = QtWebKit.QWebView(self);
+        self.imageArea.setGeometry(700, 2, 140, 80)
 
     def want(self, loadNextItemHandle):
         self.loadNextItemHandle
@@ -47,7 +50,7 @@ class mainApp():
         self.scene = QtGui.QGraphicsScene()
         self.web = QtWebKit.QWebView()
         self.web.resize(1000, 500)
-        # Construct window and view @todo rewrite
+        # Construct window and view @todo rewrite, separate into appropriate methods
         self.mainForm = selectionWindow(self.web, self.loadNextItem)
         self.mainForm.setAutoFillBackground(True)
         self.mainPalette = self.mainForm.palette()
@@ -63,20 +66,26 @@ class mainApp():
         self.view.show()
         self.app.exec_()
 
-    def render(self, price, product):
-        self.mainForm.displayArea.setText("Item: {0}<br>Price:<div style='color:{1}; display:inline;'>{2}</div>".format(str(product), "green", str(price)))
+    def render(self, price, product, image, minOrder):
+        self.mainForm.displayArea.setText("Item: {0}<div style='color:{1}; display:inline;'>{2}</div><div style='color:{3}; display:inline;'>{4}</div>".format(str(product)[0:25], "green", str(price)), "black", minOrder)
+        self.mainForm.imageArea.load(QtCore.QUrl(image))
+        self.mainForm.displayArea.setToolTip(product)
 
     def loadNextItem(self):
         QtGui.QApplication.setOverrideCursor(Qt.WaitCursor)
         item =  self.parser.serveNextItem()
         print item
         self.web.load(QtCore.QUrl("http://camelcamelcamel.com/search?sq="+item["name"]))
-        self.render(self.extractParamIfExists(item, "price"), item["name"])
+        self.render(self.extractParamIfExists(item, "FOB Price"), item["name"], self.extractParamIfExists(item, "image"), self.extractParamIfExists("Min. Order"))
         QtGui.QApplication.restoreOverrideCursor()
+
+    # Return "red" when colorBoolean is false,
+    # green otherwise
+    def chooseColor(self, colorBoolean):
+        return "green" if colorBoolean else "red"
 
     def extractParamIfExists(self, dict, key):
         try:
             return dict[key]
         except:
             return "N/A"
-
