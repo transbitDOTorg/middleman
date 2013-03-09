@@ -67,7 +67,8 @@ class mainApp():
         self.app.exec_()
 
     def render(self, price, product, image, minOrder):
-        self.mainForm.displayArea.setText("Item: {0}<div style='color:{1}; display:inline;'>{2}</div><div style='color:{3}; display:inline;'>{4}</div>".format(str(product)[0:25], "green", str(price)), "black", minOrder)
+        formatString = "Item: {0}<div style='color:{1}; display:inline;'>{2}</div><div style='color:{3}; display:inline;'>{4}</div>"
+        self.mainForm.displayArea.setText(formatString.format(str(product)[0:25], "green", str(price)), "black", str(minOrder))
         self.mainForm.imageArea.load(QtCore.QUrl(image))
         self.mainForm.displayArea.setToolTip(product)
 
@@ -76,7 +77,7 @@ class mainApp():
         item =  self.parser.serveNextItem()
         print item
         self.web.load(QtCore.QUrl("http://camelcamelcamel.com/search?sq="+item["name"]))
-        self.render(self.extractParamIfExists(item, "FOB Price"), item["name"], self.extractParamIfExists(item, "image"), self.extractParamIfExists("Min. Order"))
+        self.render(self.extractParamIfExists(item, "FOB Price"), item["name"], self.extractParamIfExists(item, "image"), self.extractParamIfExists(item, "Min. Order"))
         QtGui.QApplication.restoreOverrideCursor()
 
     # Return "red" when colorBoolean is false,
